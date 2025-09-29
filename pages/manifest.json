@@ -1,0 +1,86 @@
+{
+  "events": [
+    {
+      "id": 1,
+      "slug": "1-people-and-parliament-75-years-living-democracy",
+      "title": "People and Parliament – 75 Years Living Democracy",
+      "date": "2024-09-29",
+      "filename": "1-people-and-parliament-75-years-living-democracy.html",
+      "lastUpdated": "2025-09-29T19:35:46.343Z"
+    },
+    {
+      "id": 2,
+      "slug": "2-vincent-between-madness-and-wonder-immersive-van-gogh",
+      "title": "Vincent: Between Madness and Wonder – Immersive Van Gogh",
+      "date": "2024-09-29",
+      "filename": "2-vincent-between-madness-and-wonder-immersive-van-gogh.html",
+      "lastUpdated": "2025-09-29T19:35:46.344Z"
+    },
+    {
+      "id": 3,
+      "slug": "3-ai-to-touch-interactive-ai-exhibition",
+      "title": "AI to Touch – Interactive AI Exhibition",
+      "date": "2024-09-29",
+      "filename": "3-ai-to-touch-interactive-ai-exhibition.html",
+      "lastUpdated": "2025-09-29T19:35:46.344Z"
+    },
+    {
+      "id": 4,
+      "slug": "4-myth-and-modernity-sanctuary-of-asclepios-vr",
+      "title": "Myth and Modernity – Sanctuary of Asclepios VR",
+      "date": "2024-10-02",
+      "filename": "4-myth-and-modernity-sanctuary-of-asclepios-vr.html",
+      "lastUpdated": "2025-09-29T19:35:46.344Z"
+    },
+    {
+      "id": 5,
+      "slug": "5-emixar-ii-transformative-senses",
+      "title": "Emixar II: Transformative Senses",
+      "date": "2024-10-02",
+      "filename": "5-emixar-ii-transformative-senses.html",
+      "lastUpdated": "2025-09-29T19:35:46.344Z"
+    },
+    {
+      "id": 6,
+      "slug": "6-machu-picchu-journey-to-the-lost-city-vr",
+      "title": "Machu Picchu: Journey to the Lost City VR",
+      "date": "2024-09-29",
+      "filename": "6-machu-picchu-journey-to-the-lost-city-vr.html",
+      "lastUpdated": "2025-09-29T19:35:46.344Z"
+    },
+    {
+      "id": 7,
+      "slug": "7-naruto-the-gallery-immersive-exhibition",
+      "title": "Naruto The Gallery – Immersive Exhibition",
+      "date": "2024-09-29",
+      "filename": "7-naruto-the-gallery-immersive-exhibition.html",
+      "lastUpdated": "2025-09-29T19:35:46.344Z"
+    },
+    {
+      "id": 8,
+      "slug": "8-3hd-festival-heavy-rotation-opening",
+      "title": "3hd Festival – Heavy Rotation Opening",
+      "date": "2024-10-01",
+      "filename": "8-3hd-festival-heavy-rotation-opening.html",
+      "lastUpdated": "2025-09-29T19:35:46.345Z"
+    },
+    {
+      "id": 9,
+      "slug": "9-3hd-festival-nausea",
+      "title": "3hd Festival – Nausea",
+      "date": "2024-10-02",
+      "filename": "9-3hd-festival-nausea.html",
+      "lastUpdated": "2025-09-29T19:35:46.345Z"
+    },
+    {
+      "id": 10,
+      "slug": "10-3hd-festival-shifting-ground",
+      "title": "3hd Festival – Shifting Ground",
+      "date": "2024-10-03",
+      "filename": "10-3hd-festival-shifting-ground.html",
+      "lastUpdated": "2025-09-29T19:35:46.345Z"
+    }
+  ],
+  "generated": "2025-09-29T19:35:46.345Z",
+  "totalEvents": 10
+}

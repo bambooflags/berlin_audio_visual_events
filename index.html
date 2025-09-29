@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAVE - Berlin Audio-Visual Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- BAVE Logo - standalone at the top -->
+    <div class="text-center py-6">
+        <h1 class="text-4xl md:text-5xl font-bold text-white tracking-wider">
+            BAVE
+        </h1>
+        <p class="text-sm text-gray-400 font-light mt-2">
+            Berlin Audio-Visual Events
+        </p>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <header class="mb-12">
+            <!-- Main header content -->
+            <div class="text-center">
+                <h2 class="text-3xl md:text-5xl font-thin mb-4 text-white">
+                    This Week in Berlin AV
+                </h2>
+                <p class="text-xl text-gray-400 font-light mb-2">
+                    Audio-visual performances, installations & workshops
+                </p>
+                <p class="text-sm text-gray-500 font-light" id="weekInfo">
+                    Updated weekly • Current week's events only
+                </p>
+                <div class="w-24 h-0.5 bg-gradient-to-r from-primary to-secondary mx-auto mt-6 animate-pulse-width"></div>
+            </div>
+        </header>
+
+        <main>
+            <div id="loading" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <p class="mt-4 text-gray-400">Loading events...</p>
+            </div>
+
+            <div id="events-container" class="hidden">
+                <div class="flex flex-wrap gap-4 mb-8 justify-center">
+                    <button class="filter-btn active px-4 py-2 rounded-full text-sm font-medium transition-all" data-filter="all">
+                        All Events
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all" data-filter="workshop">
+                        Workshops
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all" data-filter="performance">
+                        Performances
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all" data-filter="meetup">
+                        Meetups
+                    </button>
+                    <button class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all" data-filter="installation">
+                        Installations
+                    </button>
+                </div>
+
+                <div id="events-grid" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                </div>
+            </div>
+        </main>
+
+        <footer class="mt-16 text-center text-gray-500 text-sm">
+            <p>Updated weekly with the latest audio-visual events in Berlin</p>
+            <p class="mt-2">
+                <a href="./archive.html" class="hover:text-primary transition-colors text-xs">View Archive</a>
+            </p>
+        </footer>
+    </div>
+
+
+    <style>
+        .filter-btn {
+            @apply bg-gray-800 text-gray-300 hover:bg-gray-700;
+        }
+        .filter-btn.active {
+            @apply bg-primary text-white;
+        }
+        .event-card {
+            @apply bg-gray-800 backdrop-blur-sm rounded-2xl transition-all duration-300 hover:transform hover:scale-105;
+            border: 1px solid white !important;
+            padding: 3rem !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg,
+                transparent 25%,
+                rgba(99, 102, 241, 0.3) 25%,
+                rgba(99, 102, 241, 0.3) 50%,
+                transparent 50%,
+                transparent 75%,
+                rgba(99, 102, 241, 0.3) 75%);
+            background-size: 8px 8px;
+            border-radius: inherit;
+            opacity: 0;
+            animation: noise 0.1s infinite linear;
+            z-index: -1;
+        }
+
+        .event-card:hover::before {
+            opacity: 1;
+        }
+
+        .event-card:hover {
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.6) !important;
+        }
+
+        @keyframes noise {
+            0% {
+                background-position: 0 0;
+                filter: hue-rotate(0deg) brightness(1);
+            }
+            25% {
+                background-position: 2px 2px;
+                filter: hue-rotate(90deg) brightness(1.2);
+            }
+            50% {
+                background-position: -2px 4px;
+                filter: hue-rotate(180deg) brightness(0.8);
+            }
+            75% {
+                background-position: 4px -2px;
+                filter: hue-rotate(270deg) brightness(1.1);
+            }
+            100% {
+                background-position: 0 0;
+                filter: hue-rotate(360deg) brightness(1);
+            }
+        }
+
+        @keyframes pulse-width {
+            0% {
+                width: 6rem;
+                transform: scaleX(1);
+            }
+            50% {
+                width: 12rem;
+                transform: scaleX(1.2);
+            }
+            100% {
+                width: 6rem;
+                transform: scaleX(1);
+            }
+        }
+
+        .animate-pulse-width {
+            animation: pulse-width 20s ease-in-out infinite;
+        }
+    </style>
+
+    <script>
+        let allEvents = [];
+        let currentFilter = 'all';
+
+        // Function to create URL-safe slug from event title and ID
+        function createSlug(title, id) {
+            const slug = title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+                .replace(/\s+/g, '-') // Replace spaces with hyphens
+                .replace(/-+/g, '-') // Replace multiple hyphens with single
+                .trim();
+            return `${id}-${slug}`;
+        }
+
+        // Fallback data for local testing
+        const fallbackData = {
+            "events": [
+                {
+                    "title": "Creative Coding Workshop: Generative Visuals",
+                    "date": "2024-10-02",
+                    "time": "19:00-22:00",
+                    "venue": "NODE Forum for Digital Arts",
+                    "location": "Potsdamer Str. 81",
+                    "short_description": "Learn real-time generative visuals with creative coding tools and data flow programming. Perfect for beginners.",
+                    "description": "Learn to create real-time generative visuals using creative coding tools and data flow programming",
+                    "organizer": "NODE Forum",
+                    "ticket_price": "20-30€",
+                    "ticket_url": "https://example.com/tickets1",
+                    "event_type": "workshop",
+                    "tags": ["creative-coding", "generative", "workshop"]
+                },
+                {
+                    "title": "Live Cinema: Data Flows",
+                    "date": "2024-10-05",
+                    "time": "21:00-01:00",
+                    "venue": "Berghain Kantine",
+                    "location": "Am Wriezener Bahnhof",
+                    "short_description": "Immersive AV performance mixing live coding with real-time graphics. Experience cutting-edge visual art.",
+                    "description": "Immersive audiovisual performance combining live coding and real-time graphics",
+                    "organizer": "Collective XYZ",
+                    "ticket_price": "15-22€",
+                    "ticket_url": "https://example.com/tickets2",
+                    "event_type": "performance",
+                    "tags": ["live-cinema", "performance", "audiovisual"]
+                },
+                {
+                    "title": "AV Meetup Berlin October",
+                    "date": "2024-10-08",
+                    "time": "Unknown",
+                    "venue": "c-base",
+                    "location": "Rungestraße 20",
+                    "short_description": "Monthly gathering for AV artists and creative technologists. Network, share projects, and learn from the community.",
+                    "description": "Monthly meetup for audiovisual artists and creative technologists. Bring your projects!",
+                    "organizer": "AV Berlin Community",
+                    "ticket_price": "Free",
+                    "ticket_url": "",
+                    "event_type": "meetup",
+                    "tags": ["community", "networking", "creative-tech"]
+                },
+                {
+                    "title": "VR Art Installation (Oct 10-13)",
+                    "date": "2024-10-10",
+                    "time": "12:00-20:00",
+                    "venue": "Digital Gallery",
+                    "location": "Kreuzberg, Berlin",
+                    "short_description": "Multi-day virtual reality art installation exploring digital consciousness and human-AI interaction.",
+                    "description": "Immersive VR installation running Thursday through Sunday, featuring works by 5 digital artists exploring consciousness in virtual space",
+                    "organizer": "Digital Arts Collective",
+                    "ticket_price": "8-15€",
+                    "ticket_url": "https://example.com/tickets4",
+                    "event_type": "installation",
+                    "tags": ["VR", "installation", "digital-art", "multi-day"]
+                }
+            ]
+        };
+
+        async function loadEvents() {
+            try {
+                console.log('Attempting to load JSON...');
+                const response = await fetch('./data/events.json');
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const jsonData = await response.json();
+                console.log('JSON loaded, events count:', jsonData.events.length);
+
+                const events = jsonData.events.sort((a, b) => new Date(a.date) - new Date(b.date));
+                console.log('Sorted events:', events.length);
+
+                allEvents = events;
+                displayEvents(events);
+                updateWeekInfo(events);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('events-container').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading JSON, using fallback data:', error);
+
+                // Use fallback data
+                const events = fallbackData.events.sort((a, b) => new Date(a.date) - new Date(b.date));
+                allEvents = events;
+                displayEvents(events);
+                updateWeekInfo(events);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('events-container').classList.remove('hidden');
+
+                // Show warning
+                const warning = document.createElement('div');
+                warning.className = 'bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mb-6 text-center';
+                warning.innerHTML = `
+                    <p class="text-yellow-400 text-sm">⚠️ Using demo data - JSON file couldn't be loaded</p>
+                    <p class="text-yellow-300/70 text-xs mt-1">For production: serve via local server or deploy to GitHub Pages</p>
+                `;
+                document.querySelector('main').insertBefore(warning, document.getElementById('events-container'));
+            }
+        }
+
+
+        function displayEvents(events) {
+            const grid = document.getElementById('events-grid');
+            grid.innerHTML = '';
+
+            events.forEach((event, index) => {
+                const eventCard = createEventCard(event, index + 1);
+                grid.appendChild(eventCard);
+            });
+        }
+
+        function createEventCard(event, eventId) {
+            const div = document.createElement('div');
+            div.className = 'event-card flex flex-col';
+            div.dataset.type = event.event_type;
+
+            const date = new Date(event.date);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            const price = event.ticket_price || 'Unknown';
+            const slug = createSlug(event.title, eventId);
+            const pageUrl = `./pages/${slug}.html`;
+
+            div.innerHTML = `
+                <div class="flex-grow">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-xs font-medium px-2 py-1 bg-primary/20 text-primary rounded-full">
+                            ${event.event_type}
+                        </span>
+                        <span class="text-xs text-gray-400">${formattedDate}</span>
+                    </div>
+
+                    <h3 class="text-lg font-semibold mb-2 text-white">${event.title}</h3>
+
+                    <div class="space-y-2 text-sm text-gray-300 mb-4">
+                        <div class="flex items-center">
+                            <span class="w-4 h-4 mr-2">📍</span>
+                            <span class="cursor-pointer hover:text-primary transition-colors" onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(event.venue + ', ' + event.location)}', '_blank')">${event.venue}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-4 h-4 mr-2">🕐</span>
+                            <span>${event.time}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="w-4 h-4 mr-2">💳</span>
+                            <span>${price}</span>
+                        </div>
+                    </div>
+
+                    <p class="text-sm text-gray-400 mb-4 line-clamp-3">${event.short_description}</p>
+
+                    <div class="mb-6 flex justify-between items-center">
+                        <span class="text-xs text-gray-500">${event.organizer}</span>
+                        ${event.ticket_url ? `<a href="${event.ticket_url}" target="_blank" class="text-xs text-primary hover:text-primary/80 transition-colors">Go to website →</a>` : ''}
+                    </div>
+                </div>
+
+                <div class="text-center mt-auto">
+                    <a href="${pageUrl}"
+                       class="inline-block bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        More Info
+                    </a>
+                </div>
+            `;
+
+            return div;
+        }
+
+        function filterEvents(type) {
+            currentFilter = type;
+            const filteredEvents = type === 'all'
+                ? allEvents
+                : allEvents.filter(event => event.event_type === type);
+
+            displayEvents(filteredEvents);
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${type}"]`).classList.add('active');
+        }
+
+
+        function updateWeekInfo(events = []) {
+            const formatDate = (date) => {
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                });
+            };
+
+            let weekText = '';
+
+            if (events.length > 0) {
+                // Calculate date range from actual events
+                const eventDates = events.map(event => new Date(event.date)).sort((a, b) => a - b);
+                const startDate = eventDates[0];
+                const endDate = eventDates[eventDates.length - 1];
+
+                // Check if it spans exactly one week
+                const daysDiff = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+                if (daysDiff <= 7 && startDate.getTime() === endDate.getTime()) {
+                    // Single day
+                    weekText = `${formatDate(startDate)} • Updated weekly`;
+                } else if (daysDiff <= 7) {
+                    // Week range
+                    weekText = `${formatDate(startDate)} - ${formatDate(endDate)} • Updated weekly`;
+                } else {
+                    // Longer period
+                    weekText = `${formatDate(startDate)} - ${formatDate(endDate)} • Multi-week events`;
+                }
+            } else {
+                // Fallback to current week
+                const today = new Date();
+                const monday = new Date(today);
+                const day = monday.getDay();
+                const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+                monday.setDate(diff);
+
+                const sunday = new Date(monday);
+                sunday.setDate(monday.getDate() + 6);
+
+                weekText = `Week of ${formatDate(monday)} - ${formatDate(sunday)} • Updated weekly`;
+            }
+
+            const weekInfo = document.getElementById('weekInfo');
+            weekInfo.textContent = weekText;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateWeekInfo();
+            loadEvents();
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterEvents(btn.dataset.filter);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

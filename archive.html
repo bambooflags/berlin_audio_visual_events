@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archive - BAVE Berlin AV Events</title>
+    <meta name="description" content="Complete archive of all audio-visual events in Berlin">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        secondary: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="border-b border-gray-800">
+        <div class="container mx-auto px-4 py-4">
+            <a href="./index.html" class="text-primary hover:text-primary/80 transition-colors">
+                ← Back to Current Events
+            </a>
+        </div>
+    </nav>
+
+    <!-- BAVE Logo -->
+    <div class="text-center py-6">
+        <a href="./index.html">
+            <h1 class="text-4xl md:text-5xl font-bold text-white tracking-wider hover:text-primary transition-colors">
+                BAVE
+            </h1>
+            <p class="text-sm text-gray-400 font-light mt-2">
+                Berlin Audio-Visual Events
+            </p>
+        </a>
+    </div>
+
+    <!-- Archive Content -->
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <header class="mb-12 text-center">
+            <h2 class="text-3xl md:text-4xl font-thin mb-4 text-white">
+                Event Archive
+            </h2>
+            <p class="text-lg text-gray-400 font-light">
+                Complete history of all audio-visual events
+            </p>
+            <div class="w-24 h-0.5 bg-gradient-to-r from-primary to-secondary mx-auto mt-6"></div>
+        </header>
+
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <p class="mt-4 text-gray-400">Loading archive...</p>
+        </div>
+
+        <div id="archive-container" class="hidden">
+            <div id="archive-list" class="space-y-4">
+                <!-- Archive items will be inserted here -->
+            </div>
+
+            <div id="archive-stats" class="mt-12 text-center text-gray-500 text-sm">
+                <!-- Stats will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-16 mb-8 text-center text-gray-500 text-sm">
+        <p>Part of BAVE - Berlin Audio-Visual Events</p>
+        <p class="mt-2">
+            <a href="./index.html" class="hover:text-primary transition-colors">View Current Events</a>
+        </p>
+    </footer>
+
+    <script>
+        async function loadArchive() {
+            try {
+                const response = await fetch('./pages/manifest.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const manifest = await response.json();
+                const events = manifest.events || [];
+
+                // Sort by date (newest first)
+                events.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                displayArchive(events);
+                displayStats(events, manifest.generated);
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('archive-container').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading archive:', error);
+                document.getElementById('loading').innerHTML = `
+                    <p class="text-red-400">Error loading archive</p>
+                    <p class="text-gray-500 text-sm mt-2">Please make sure the manifest has been generated</p>
+                `;
+            }
+        }
+
+        function displayArchive(events) {
+            const container = document.getElementById('archive-list');
+            container.innerHTML = '';
+
+            // Group events by month/year
+            const grouped = {};
+            events.forEach(event => {
+                const date = new Date(event.date);
+                const monthYear = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long'
+                });
+
+                if (!grouped[monthYear]) {
+                    grouped[monthYear] = [];
+                }
+                grouped[monthYear].push(event);
+            });
+
+            // Display grouped events
+            Object.entries(grouped).forEach(([monthYear, monthEvents]) => {
+                // Month header
+                const monthHeader = document.createElement('div');
+                monthHeader.className = 'mb-6 mt-8 first:mt-0';
+                monthHeader.innerHTML = `
+                    <h3 class="text-xl font-semibold text-white mb-4 border-b border-gray-800 pb-2">
+                        ${monthYear}
+                    </h3>
+                `;
+                container.appendChild(monthHeader);
+
+                // Events in this month
+                monthEvents.forEach(event => {
+                    const eventItem = createArchiveItem(event);
+                    container.appendChild(eventItem);
+                });
+            });
+        }
+
+        function createArchiveItem(event) {
+            const div = document.createElement('div');
+            div.className = 'bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-primary/50 transition-all';
+
+            const date = new Date(event.date);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+
+            div.innerHTML = `
+                <a href="./pages/${event.filename}" class="block">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div class="flex-grow">
+                            <h4 class="text-lg font-medium text-white hover:text-primary transition-colors mb-1">
+                                ${event.title}
+                            </h4>
+                            <p class="text-sm text-gray-400">
+                                ${formattedDate}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-primary text-sm hover:text-primary/80">
+                                View Event →
+                            </span>
+                        </div>
+                    </div>
+                </a>
+            `;
+
+            return div;
+        }
+
+        function displayStats(events, generatedDate) {
+            const statsContainer = document.getElementById('archive-stats');
+            const lastGenerated = new Date(generatedDate).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            statsContainer.innerHTML = `
+                <p>Total events: ${events.length}</p>
+                <p class="mt-1 text-xs">Last updated: ${lastGenerated}</p>
+            `;
+        }
+
+        // Load archive on page load
+        document.addEventListener('DOMContentLoaded', loadArchive);
+    </script>
+</body>
+</html>

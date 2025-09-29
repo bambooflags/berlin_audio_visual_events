@@ -1,0 +1,17 @@
+{
+  "name": "bave-berlin-av-events",
+  "version": "1.0.0",
+  "description": "Berlin Audio-Visual Events - Static website showcasing weekly TouchDesigner events",
+  "scripts": {
+    "generate-pages": "node generate-pages.js",
+    "serve": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "events",
+    "berlin",
+    "audiovisual",
+    "touchdesigner"
+  ],
+  "author": "",
+  "license": "MIT"
+}
