@@ -1,73 +1,25 @@
 # BAVE - Berlin Audio-Visual Events
 
-A static website showcasing weekly TouchDesigner events, video projections, and AV performances in Berlin.
+**BAVE** is your curated guide to the vibrant world of audio-visual culture in Berlin. We showcase weekly events featuring TouchDesigner performances, video projections, immersive installations, and live AV shows happening across the city.
 
-## Project Structure
+## What is BAVE?
 
-```
-.
-├── index.html              # Main landing page with event cards
-├── data/
-│   └── events.json        # Event data source
-├── pages/                 # Individual event pages (auto-generated)
-│   ├── manifest.json      # Index of all generated pages
-│   └── *.html            # Individual event pages
-├── generate-pages.js      # Script to generate individual event pages
-└── package.json          # NPM scripts
-```
+Berlin is a global hub for experimental audio-visual art, and BAVE helps you discover what's happening right now. From intimate gallery openings to large-scale festival performances, we track and present the most compelling AV events each week.
 
-## Features
+## What You'll Find Here
 
-- **Individual Event Pages**: Each event gets its own page with a SEO-friendly URL format: `{id}-{event-title-slug}.html`
-- **Archive-Ready**: Pages are preserved in the `pages/` directory for historical reference
-- **SEO Optimized**: Each page has proper meta tags, descriptions, and semantic HTML
-- **Responsive Design**: Works seamlessly on mobile and desktop
-- **Share Functions**: Built-in Twitter, Facebook, and copy-link functionality
+- **Immersive Exhibitions**: VR experiences, interactive installations, and digital art shows
+- **Live AV Performances**: Audio-visual concerts, club nights, and experimental performances
+- **Festival Programs**: Coverage of Berlin's major media art and performance festivals
+- **Video Mapping & Projections**: Large-scale projection art and architectural mapping events
+- **TouchDesigner & Creative Tech**: Events featuring real-time visual programming and generative art
 
-## Usage
+## How It Works
 
-### Generating Event Pages
+The site is updated weekly with fresh events scraped from venues, festivals, and cultural institutions across Berlin. Each event gets its own dedicated page with full details, venue information, and ticket links.
 
-When you update `data/events.json`, regenerate the individual event pages:
+Browse current events on the homepage, or explore the complete archive of past events to see what's been happening in Berlin's AV scene.
 
-```bash
-npm run generate-pages
-```
+## About the Technology
 
-This will:
-1. Read all events from `data/events.json`
-2. Generate individual HTML pages in the `pages/` directory
-3. Create a `manifest.json` with metadata about all generated pages
-
-### URL Format
-
-Event pages follow this naming convention:
-```
-{event-id}-{sanitized-event-title}.html
-```
-
-Example:
-- Event: "3hd Festival – Heavy Rotation Opening"
-- URL: `pages/8-3hd-festival-heavy-rotation-opening.html`
-
-### Local Development
-
-Start a local server:
-
-```bash
-npm run serve
-```
-
-Then open: http://localhost:8000
-
-## Deployment
-
-This is a static site optimized for GitHub Pages. Simply push to the repository and enable GitHub Pages in settings.
-
-## Updating Events
-
-1. Update `data/events.json` with new events
-2. Run `npm run generate-pages` to create new event pages
-3. Commit and push all changes (including generated pages)
-
-Old event pages remain in the `pages/` directory for archival purposes and SEO benefits.
+BAVE is a static website optimized for fast loading and easy sharing. Each event page is SEO-friendly and archivable, ensuring the history of Berlin's audio-visual culture is preserved and discoverable.

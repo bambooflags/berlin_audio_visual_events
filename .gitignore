@@ -3,6 +3,9 @@ CLAUDE.md
 .claude/
 *.claude
 
+# Developer instructions (private)
+instructions.md
+
 # System files
 .DS_Store
 .DS_Store?
