@@ -214,32 +214,66 @@ if (fs.existsSync(manifestPath)) {
     }
 }
 
-// Create a map of existing events by slug to avoid duplicates
-const existingEventsBySlug = new Map();
+// Find the highest ID ever used in the manifest
+let maxId = 0;
 existingManifest.events.forEach(event => {
-    existingEventsBySlug.set(event.slug, event);
+    if (event.id > maxId) {
+        maxId = event.id;
+    }
+});
+console.log(`Highest existing ID: ${maxId}`);
+
+// Create a map of existing events by title+date to detect duplicates
+const existingEventsByKey = new Map();
+existingManifest.events.forEach(event => {
+    const key = `${event.title}|${event.date}`;
+    existingEventsByKey.set(key, event);
+});
+
+// Also keep track by slug for final manifest
+const allEventsBySlug = new Map();
+existingManifest.events.forEach(event => {
+    allEventsBySlug.set(event.slug, event);
 });
 
 // Generate pages for all events
 let newEventsCount = 0;
-eventsData.events.forEach((event, index) => {
-    const eventId = index + 1;
+let nextId = maxId + 1;
+
+eventsData.events.forEach((event) => {
+    // Check if this event already exists (by title + date)
+    const eventKey = `${event.title}|${event.date}`;
+    const existingEvent = existingEventsByKey.get(eventKey);
+
+    let eventId;
+    let isNew = false;
+
+    if (existingEvent) {
+        // Event exists, reuse its ID
+        eventId = existingEvent.id;
+        console.log(`Found existing event: ${event.title} (ID: ${eventId})`);
+    } else {
+        // New event, assign next available ID
+        eventId = nextId;
+        nextId++;
+        newEventsCount++;
+        isNew = true;
+    }
+
     const { slug, html } = generateEventPage(event, eventId);
     const filename = `${slug}.html`;
     const filepath = path.join(pagesDir, filename);
 
     fs.writeFileSync(filepath, html);
 
-    // Check if this is a new event
-    if (!existingEventsBySlug.has(slug)) {
-        newEventsCount++;
-        console.log(`Generated (NEW): ${filename}`);
+    if (isNew) {
+        console.log(`Generated (NEW): ${filename} (ID: ${eventId})`);
     } else {
-        console.log(`Updated: ${filename}`);
+        console.log(`Updated: ${filename} (ID: ${eventId})`);
     }
 
     // Update or add to map
-    existingEventsBySlug.set(slug, {
+    allEventsBySlug.set(slug, {
         id: eventId,
         slug: slug,
         title: event.title,
@@ -250,7 +284,7 @@ eventsData.events.forEach((event, index) => {
 });
 
 // Convert map back to array (this preserves ALL events ever created)
-const allEvents = Array.from(existingEventsBySlug.values());
+const allEvents = Array.from(allEventsBySlug.values());
 
 // Save complete manifest
 fs.writeFileSync(
